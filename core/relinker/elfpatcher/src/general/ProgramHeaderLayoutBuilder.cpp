@@ -118,13 +118,10 @@ std::uint64_t ProgramHeaderLayoutBuilder::ComputeExtraBlockVaddr(
 
     const std::uint64_t align = kDefaultLoadAlignment;
     const std::uint64_t offsetRemainder = extraBlockOffset & (align - 1);
-    const std::uint64_t alignedFloor = highestVaddrEnd & ~(align - 1);
-    std::uint64_t vaddr = alignedFloor | offsetRemainder;
-    if (vaddr < highestVaddrEnd)
-        vaddr += align;
-    if (vaddr < highestVaddrEnd)
+    const std::uint64_t alignedEnd = (highestVaddrEnd + align - 1) & ~(align - 1);
+    if (alignedEnd < highestVaddrEnd)
         throw Domain::RelinkerException("Extra block vaddr computation overflowed");
-    return vaddr;
+    return alignedEnd | offsetRemainder;
 }
 
 std::uint16_t ProgramHeaderLayoutBuilder::WriteLayout(
